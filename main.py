@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 import sys
 
-def debug(str):
-  print str
+DEBUG = False      # set to True to see the debugging outputs
+def debug(obj):
+  if DEBUG:
+    strings = "{}".format(obj).split("\n")
+    for string in strings:
+      print "DEBUG: "+ string
 
 ## verify the input
 try:
@@ -14,17 +18,17 @@ except:
 
 class Nodeset(set):
   def add(self, node):
-    if node != self:
+    if node != None:
       return super(Nodeset, self).add(node)
   def __getitem__(self, label):
     for node in self:
       if node.label == label:
         return node
+    return None
   def __setitem__(self, label, node):
     return super(Nodeset, self).add(node)
 
 class Node:
-  label = ""
   def __init__(self, label):
     self.label = label
     self.leave = Nodeset()
@@ -39,61 +43,60 @@ class Node:
     return output
 
   def is_bridge(self):
+    """This is a bridge node if it has exactly one node entering and one node leaving"""
     return len(self.leave) == 1 and len(self.enter) == 1
  
   def link(self, node):
     self.enter.add(node)
     node.leave.add(self)
 
-
 class Graph:
   def __init__(self):
     self.nodes = {}
+    self.nodeset = Nodeset()
 
   def add_edge(self, src, dst):
-    src_node = self.nodes[src] if src in self.nodes else Node(src)
-    dst_node = self.nodes[dst] if dst in self.nodes else Node(dst)
+    src_node = self.nodeset[src] or Node(src)
+    dst_node = self.nodeset[dst] or Node(dst)
 
     src_node.link(dst_node)
 
-    self.nodes[src] = src_node
-    self.nodes[dst] = dst_node
+    self.nodeset[src] = src_node
+    self.nodeset[dst] = dst_node
 
   def bridge_nodes(self):
-    for node in self.nodes.values():
+    nodes_to_remove = set()
+    for node in self.nodeset:
       if node.is_bridge():
-        # we can assume there's only one element to pop
+        # it's like a doubly linked list. Remove the middle node and point
+        # enter and leave to each other. And since there's only one element in the
+        # nodesets, we can safely assume that's the one we want
         leave = node.leave.pop()
         enter = node.enter.pop()
-        enter.leave.add(leave)
-        leave.enter.add(enter)
-        leave.enter.remove(node)
-        enter.leave.remove(node)
-        print "deleted " + node.label
-        del self.nodes[node.label]
-        del node
-    # clean up
-    for node in self.nodes.values():
-      # delete loops
-      if node in node.enter:
-        node.enter.remove(node)
-      if node in node.leave:
-        node.leave.remove(node)
+        leave = None if leave == node else leave  # make sure we're not making a circular loop
+        enter = None if enter == node else enter
+        if leave != None:
+          leave.enter.add(enter)                  # relinking the doubly linked list
+          leave.enter.remove(node)                # removing reference to the bridge node we're removing
+        if enter != None:
+          enter.leave.add(leave)
+          enter.leave.remove(node)
+        nodes_to_remove.add(node)                 # delegate bridge node removal later, to not affect the for loop
+    self.nodeset -= nodes_to_remove
+    debug("Deleted nodes: {}".format(map(lambda x: x.label, nodes_to_remove)))
 
   def __str__(self):
     output = ""
-    for node in self.nodes.values():
+    for node in self.nodeset:
       output += node.debug()
-    #  output += str(self.nodes[node])
-    return output
+    return output.strip()
 
   def output(self):
     output = ""
-    for node in self.nodes.values():
+    for node in self.nodeset:
       for leave in node.leave:
         output += "{}\t{}\n".format(leave.label, node.label)
-    return output
-
+    return output.strip()
 
 
 def main():
@@ -103,9 +106,15 @@ def main():
       continue
     (src,dst) = line.split("\t");
     graph.add_edge(src, dst)
-  print graph
+  debug("===========")
+  debug("Initial graph representation:")
+  debug(graph)
+  debug("===========")
+  debug("After bridging nodes")
   graph.bridge_nodes()
-  print graph
+  debug(graph)
+  debug("===========")
+  debug("Output:")
   print graph.output()
 
 if __name__ == "__main__":
