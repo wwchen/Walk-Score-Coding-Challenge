@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 
-DEBUG = False      # set to True to see the debugging outputs
+DEBUG = True      # set to True to see the debugging outputs
 def debug(obj):
   if DEBUG:
     strings = "{}".format(obj).split("\n")
@@ -30,6 +30,13 @@ class Nodeset(set):
     return None
   def __setitem__(self, label, node):
     return super(Nodeset, self).add(node)
+  def __eq__(self, other):
+    if(len(self) == len(other)):
+      for node in self:
+        if other[node.label] == None:
+          return False
+      return True
+    return False
 
 """ Node class is essentially a doubly linked list. Keeps track of the current value,
 nodes pointed at the current node, as well as nodes pointing to """
@@ -73,28 +80,34 @@ class Graph:
     self.nodeset[src] = src_node
     self.nodeset[dst] = dst_node
 
-  def bridge_nodes(self):
+  def reduce(self):
     """ Remove nodes that have exactly one input and output edge. Bridge nodes are nodes that
     bridge between nodes that are intersections """
-    nodes_to_remove = set()
-    for node in self.nodeset:
-      if node.is_bridge():
-        # it's like a doubly linked list. Remove the middle node and point
-        # enter and leave to each other. And since there's only one element in the
-        # nodesets, we can safely assume that's the one we want
-        leave = node.leave.pop()
-        enter = node.enter.pop()
-        leave = None if leave == node else leave  # make sure we're not making a circular loop
-        enter = None if enter == node else enter
-        if leave != None:
-          leave.enter.add(enter)                  # relinking the doubly linked list
-          leave.enter.remove(node)                # removing reference to the bridge node we're removing
-        if enter != None:
-          enter.leave.add(leave)
-          enter.leave.remove(node)
-        nodes_to_remove.add(node)                 # delegate bridge node removal later, to not affect the for loop
-    self.nodeset -= nodes_to_remove
-    debug("Deleted nodes: {}".format(map(lambda x: x.label, nodes_to_remove)))
+    prev_nodeset = self.nodeset.copy()
+    while True:
+      nodes_to_remove = set()
+      for node in self.nodeset:
+        if node.is_bridge():
+          # it's like a doubly linked list. Remove the middle node and point
+          # enter and leave to each other. And since there's only one element in the
+          # nodesets, we can safely assume that's the one we want
+          leave = node.leave.pop()
+          enter = node.enter.pop()
+          leave = None if leave == node else leave  # make sure we're not making a circular loop
+          enter = None if enter == node else enter
+          if leave != None and leave != enter:
+            leave.enter.add(enter)                  # relinking the doubly linked list
+            leave.enter.remove(node)                # removing reference to the bridge node we're removing
+          if enter != None and leave != enter:
+            enter.leave.add(leave)
+            enter.leave.remove(node)
+          nodes_to_remove.add(node)                 # delegate bridge node removal later, to not affect the for loop
+      self.nodeset -= nodes_to_remove
+      debug("Deleted nodes: {}".format(map(lambda x: x.label, nodes_to_remove)))
+      debug(self)
+      if prev_nodeset == self.nodeset:
+        break
+      prev_nodeset = self.nodeset
 
   def __str__(self):
     output = ""
@@ -122,8 +135,7 @@ def main():
   debug(graph)
   debug("===========")
   debug("After bridging nodes")
-  graph.bridge_nodes()
-  debug(graph)
+  graph.reduce()
   debug("===========")
   debug("Output:")
   print graph.output()
