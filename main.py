@@ -16,6 +16,9 @@ except:
   print "Usage: %s filename" % sys.argv[0]
   sys.exit(1)
 
+""" A derived class of the builtin data structure set
+Supporting validation on values before adding to the set and
+fetching by node label in O(n)"""
 class Nodeset(set):
   def add(self, node):
     if node != None:
@@ -28,6 +31,8 @@ class Nodeset(set):
   def __setitem__(self, label, node):
     return super(Nodeset, self).add(node)
 
+""" Node class is essentially a doubly linked list. Keeps track of the current value,
+nodes pointed at the current node, as well as nodes pointing to """
 class Node:
   def __init__(self, label):
     self.label = label
@@ -43,19 +48,23 @@ class Node:
     return output
 
   def is_bridge(self):
-    """This is a bridge node if it has exactly one node entering and one node leaving"""
+    """ This is a bridge node if it has exactly one node entering and one node leaving """
     return len(self.leave) == 1 and len(self.enter) == 1
  
   def link(self, node):
+    """ Creating an edge relationship between two nodes """
     self.enter.add(node)
     node.leave.add(self)
 
+""" Graph class keeps track of all the nodes that exists. Its main function is to handle the
+relationships between nodes. """
 class Graph:
   def __init__(self):
     self.nodes = {}
     self.nodeset = Nodeset()
 
   def add_edge(self, src, dst):
+    """ Given two nodes, create an edge. If either do not exist in the graph, create them """
     src_node = self.nodeset[src] or Node(src)
     dst_node = self.nodeset[dst] or Node(dst)
 
@@ -65,6 +74,8 @@ class Graph:
     self.nodeset[dst] = dst_node
 
   def bridge_nodes(self):
+    """ Remove nodes that have exactly one input and output edge. Bridge nodes are nodes that
+    bridge between nodes that are intersections """
     nodes_to_remove = set()
     for node in self.nodeset:
       if node.is_bridge():
