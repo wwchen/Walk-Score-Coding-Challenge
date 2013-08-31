@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 
-DEBUG = True      # set to True to see the debugging outputs
+DEBUG = False      # set to True to see the debugging outputs
 def debug(obj):
   if DEBUG:
     strings = "{}".format(obj).split("\n")

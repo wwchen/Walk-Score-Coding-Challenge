@@ -26,6 +26,7 @@ refactoring went into choosing the right data structure to represent nodes in th
 
 Sample output
 =============
+
     ===================
     Test #0: ./main.py input/0
     A	C
@@ -58,8 +59,12 @@ Sample output
     E	F
     E	G
     G	H
-    G	B
-    B	E
+    G	E
+    
+    ===================
+    Test #8: ./main.py input/8
+    A	G
+    G	H
 
 With debugging turned on:
 
@@ -73,6 +78,9 @@ With debugging turned on:
     DEBUG: ===========
     DEBUG: After bridging nodes
     DEBUG: Deleted nodes: ['B']
+    DEBUG: Node A links from ['C']
+    DEBUG: Node C links to ['A']
+    DEBUG: Deleted nodes: []
     DEBUG: Node A links from ['C']
     DEBUG: Node C links to ['A']
     DEBUG: ===========
@@ -94,6 +102,9 @@ With debugging turned on:
     DEBUG: Deleted nodes: ['B', 'D']
     DEBUG: Node C links to ['A']
     DEBUG: Node A links from ['C']
+    DEBUG: Deleted nodes: []
+    DEBUG: Node C links to ['A']
+    DEBUG: Node A links from ['C']
     DEBUG: ===========
     DEBUG: Output:
     A	C
@@ -111,6 +122,8 @@ With debugging turned on:
     DEBUG: ===========
     DEBUG: After bridging nodes
     DEBUG: Deleted nodes: ['B', 'D', 'A', 'C']
+    DEBUG: 
+    DEBUG: Deleted nodes: []
     DEBUG: 
     DEBUG: ===========
     DEBUG: Output:
@@ -177,10 +190,35 @@ With debugging turned on:
     DEBUG: Node H links to ['G']
     DEBUG: Node B links to ['G'] and links from ['E']
     DEBUG: Node E links to ['B'] and links from ['G', 'F']
+    DEBUG: Deleted nodes: ['B']
+    DEBUG: Node F links to ['E']
+    DEBUG: Node G links to ['E'] and links from ['H', 'E']
+    DEBUG: Node H links to ['G']
+    DEBUG: Node E links to ['G'] and links from ['G', 'F']
     DEBUG: ===========
     DEBUG: Output:
     E	F
     E	G
     G	H
-    G	B
-    B	E
+    G	E
+    
+    ===================
+    Test #8: ./main.py input/8
+    DEBUG: ===========
+    DEBUG: Initial graph representation:
+    DEBUG: Node G links to ['D'] and links from ['H', 'A']
+    DEBUG: Node H links to ['G']
+    DEBUG: Node D links to ['A'] and links from ['G']
+    DEBUG: Node A links to ['G'] and links from ['D']
+    DEBUG: ===========
+    DEBUG: After bridging nodes
+    DEBUG: Deleted nodes: ['D', 'A']
+    DEBUG: Node G links to ['A'] and links from ['H', 'A']
+    DEBUG: Node H links to ['G']
+    DEBUG: Deleted nodes: []
+    DEBUG: Node G links to ['A'] and links from ['H', 'A']
+    DEBUG: Node H links to ['G']
+    DEBUG: ===========
+    DEBUG: Output:
+    A	G
+    G	H
