@@ -1,4 +1,4 @@
-Welcome to the Walk Score coding challenge!
+Walk Score coding challenge!
 ===========================================
 
 The files in the input directory represent directed graphs.  Each line
@@ -61,6 +61,7 @@ Sample output
     G	B
     B	E
 
+With debugging turned on:
 
     ===================
     Test #0: ./main.py input/0
