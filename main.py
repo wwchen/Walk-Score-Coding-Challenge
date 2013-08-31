@@ -19,8 +19,10 @@ class Node:
     self.goout = []
 
   def __str__(self):
-    args = (self.label, ', '.join(self.goin), ', '.join(self.goout))
-    return "Node %s links from %s and links to %s" % args
+    output = "Node {} ".format(self.label)
+    output +=    "links from {} ".format(map(lambda x: x.label, self.goin))  if len(self.goin)  > 0 else ""
+    output += "and links to {}\n".format(map(lambda x: x.label, self.goout)) if len(self.goout) > 0 else ""
+    return output
 
   def __repr__(self):
     return self.__str__()
@@ -52,7 +54,7 @@ class Graph:
   def __str__(self):
     output = ""
     for node in self.nodes:
-      output += str(node)
+      output += str(self.nodes[node])
     return output
 
 
