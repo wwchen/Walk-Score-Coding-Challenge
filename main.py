@@ -23,7 +23,6 @@ class Nodeset(set):
   def __setitem__(self, label, node):
     return super(Nodeset, self).add(node)
 
-
 class Node:
   label = ""
   def __init__(self, label):
@@ -68,6 +67,8 @@ class Graph:
         enter = node.enter.pop()
         enter.leave.add(leave)
         leave.enter.add(enter)
+        leave.enter.remove(node)
+        enter.leave.remove(node)
         print "deleted " + node.label
         del self.nodes[node.label]
         del node
@@ -79,14 +80,20 @@ class Graph:
       if node in node.leave:
         node.leave.remove(node)
 
-
-
   def __str__(self):
     output = ""
     for node in self.nodes.values():
       output += node.debug()
     #  output += str(self.nodes[node])
     return output
+
+  def output(self):
+    output = ""
+    for node in self.nodes.values():
+      for leave in node.leave:
+        output += "{}\t{}\n".format(leave.label, node.label)
+    return output
+
 
 
 def main():
@@ -99,6 +106,7 @@ def main():
   print graph
   graph.bridge_nodes()
   print graph
+  print graph.output()
 
 if __name__ == "__main__":
   main()
