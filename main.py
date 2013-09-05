@@ -8,14 +8,6 @@ def debug(obj):
     for string in strings:
       print "DEBUG: "+ string
 
-## verify the input
-try:
-  string = open(sys.argv[1]).read()
-except:
-  print "Cannot open the file!"
-  print "Usage: %s filename" % sys.argv[0]
-  sys.exit(1)
-
 """ A derived class of the builtin data structure set
 Supporting validation on values before adding to the set and
 fetching by node label in O(n)"""
@@ -125,8 +117,9 @@ class Graph:
 
 def main():
   graph = Graph()
-  for line in string.split("\n"):
-    if len(line.strip()) == 0:
+  for line in sys.stdin:
+    line = line.strip()
+    if len(line) == 0:
       continue
     (src,dst) = line.split("\t");
     graph.add_edge(src, dst)

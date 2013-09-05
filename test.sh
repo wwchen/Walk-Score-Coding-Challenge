@@ -5,7 +5,7 @@ for input in input/*; do
   echo -en "\e[33mTest #${input##*/}: "
   echo -e "\e[35m./main.py $input\e[0m"
 
-  ./main.py $input
+  ./main.py < $input
 
   output=output/${input##*/}
   if [[ -f $output ]]; then
